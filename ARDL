@@ -1,0 +1,40 @@
+#type "help ADMBP" for source of codes
+install ADMBP
+include ADMBP.gfn
+open AWM.gdt
+series inc = ln ( YER )
+series c = ln ( PCR )
+series w = ln ( WLN / PCD )
+list xlist = inc w
+list rxlist = const
+list Lall = c xlist rxlist
+smpl Lall --no-missing
+scalar pqmax = 4
+scalar condARDL = 1
+scalar infocrit = 1
+scalar horiz = 40
+scalar cilevel = 0.1
+scalar btype = 2
+scalar bootrep = 1000
+scalar shocktype = 1
+bundle b = setARDL (c, xlist, rxlist, pqmax, infocrit, condARDL, shocktype, btype, bootrep, horiz, cilevel)
+lagselect (& b )
+set stopwatch
+runARDL (& b )
+print b
+LRbeta (& b )
+#if Bewley's long-run multiplier(Coeff/SD) greater than 1.965, significant at the 5% level.
+matrix LRinc = b.LRbeta_inc
+irf_plot (b.DM_inc , " Shock of inc on c " , " Horizon " , " Response ")
+matrix LRinc = b.LRbeta_w
+irf_plot (b.DM_w , " Shock of inc on c " , " Horizon " , " Response ")
+install cointARDL
+include cointARDL.gfn
+scalar pq = 1
+scalar failstop = 0.1
+scalar which = 0
+scalar verbose = 1
+scalar case = 1
+bundle b = setMod (which, case, c, xlist, rxlist, pq, condARDL, btype, bootrep, failstop, verbose)
+runCoint(&b)
+#Ho is rejected if the p-value is greater than 0.05. There is cointegration. 
